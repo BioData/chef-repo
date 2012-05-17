@@ -1,72 +1,76 @@
-Redis Cookbook for EngineYard EYCloud
-=========
+# redis chef cookbook
 
-[Redis][1] Redis is an open source, advanced key-value store. It is often referred to as a data structure server since keys can contain [strings][7], [hashes][6], [lists][5], [sets][4] and [sorted sets][3].  Learn More at the [introduction][7].
+Redis: a fast, flexible datastore offering an extremely useful set of data structure primitives
 
-Overview
---------
+## Overview
 
-This cookbook provides a method to host a dedicated redis instance.  This recipe should *NOT* be used on your Database instance as it is not designed for that instance.  Additionally it will not change nor modify your database instance in anyway what so ever.
+Redis, a fast lightweight database
 
-Design
---------
+## Recipes 
 
-* 1+ utility instances
-* over-commit is enabled by default to ensure the least amount of problems saving your database.
-* 64-bit is required for storing over 2gigabytes worth of keys.  
+* `client`                   - Client support for Redis database
+* `default`                  - Base configuration for redis
+* `install_from_package`     - Install From Ubuntu Package -- easy but lags in version
+* `install_from_release`     - Install From Release
+* `server`                   - Redis server with runit service
 
-Backups
---------
+## Integration
 
-This cookbook does not automate not facilitate any backup method currently.  By default there is a snapshot enabled for your environment and that should provide a viable backup to recover from.  If you have any backup concerns open a ticket with our [Support Team][9].
+Supports platforms: debian and ubuntu
 
-Specifics of Usage
---------
+Cookbook dependencies:
+* runit
+* install_from
+* metachef
 
-Currently this Cookbook provides the following methods of using Redis:
 
-1. Redis
+## Attributes
 
-  * Add an utility instance with the following naming scheme,
+* `[:redis][:home_dir]`               -  (default: "/usr/local/share/redis")
+* `[:redis][:pid_file]`               - Redis PID file path (default: "/var/run/redis.pid")
+  - Path to the PID file when daemonized.
+* `[:redis][:log_dir]`                - Redis log dir path (default: "/var/log/redis")
+  - Path to the log directory when daemonized -- will be stored in [log_dir]/redis.log.
+* `[:redis][:data_dir]`               - Redis database directory (default: "/var/lib/redis")
+  - Path to the directory for database files.
+* `[:redis][:db_basename]`            - Redis database filename (default: "dump.rdb")
+  - Filename for the database storage.
+* `[:redis][:release_url]`            - URL for redis release package (default: "http://redis.googlecode.com/files/redis-:version:.tar.gz")
+  - If using the install_from_release strategy, the URL for the release tarball
+* `[:redis][:glueoutputbuf]`          - Redis output buffer coalescing (default: "yes")
+  - Glue small output buffers together into larger TCP packets.
+* `[:redis][:saves]`                  - Redis disk persistence policies
+  - An array of arrays of time, changed objects policies for persisting data to disk.
+* `[:redis][:slave]`                  - Redis replication slave (default: "no")
+  - Act as a replication slave to a master redis database.
+* `[:redis][:shareobjects]`           - Redis shared object compression (default: "no") (default: "no")
+  - Attempt to reduce memory use by sharing storage for substrings.
+* `[:redis][:conf_dir]`               -  (default: "/etc/redis")
+* `[:redis][:user]`                   -  (default: "redis")
+* `[:redis][:version]`                -  (default: "2.0.2")
+* `[:redis][:server][:addr]`          - IP address to bind. (default: "0.0.0.0")
+* `[:redis][:server][:port]`          - Redis server port (default: "6379")
+  - TCP port to bind.
+* `[:redis][:server][:timeout]`       - Redis server timeout (default: "300")
+  - Timeout, in seconds, for disconnection of idle clients.
+* `[:users][:redis][:uid]`            -  (default: "335")
+* `[:groups][:redis][:gid]`           -  (default: "335")
 
-  * redis
+## License and Author
 
-Changing Defaults
---------
+Author::                Benjamin Black (<b@b3k.us>)
+Copyright::             2011, Benjamin Black
 
-A large portion of the defaults of this recipe have been moved to a attribute file; if you need to change how often you save; review the attribute file and modify.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Dependencies
---------
+    http://www.apache.org/licenses/LICENSE-2.0
 
-This cookbook depends on the dnapi|emerge cookbook, you can add it as a
-submodule as follows,
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
-``git submodule update --init``  
-``git submodule add git://github.com/damm/ey-dnapi.git cookbooks/dnapi`` 
-``git submodule add git://github.com/damm/ey-emerge.git cookbooks/emerge``  
-
-Installation
---------
-
-Ensure you have the Dependencies installed in your local cookbooks repository ...
-Add the following to your main/recipes/default.rb
-
-``require_recipe "redis"``  
-
-How to get Support
---------
-
-* irc://irc.freenode.net/#redis
-* This Github repository.
-* This Cookbook provides a technology that is listed in the Engine Yard [Technology Stack][2]
-
-[1]: http://redis.io/
-[2]: http://www.engineyard.com/products/technology/stack
-[3]: http://redis.io/topics/data-types#sorted-sets
-[4]: http://redis.io/topics/data-types#sets
-[5]: http://redis.io/topics/data-types#lists
-[6]: http://redis.io/topics/data-types#hashes
-[7]: http://redis.io/topics/data-types#strings
-[8]: http://redis.io/topics/introduction
-[9]: https://support.cloud.engineyard.com
+> readme generated by [cluster_chef](http://github.com/infochimps/cluster_chef)'s cookbook_munger

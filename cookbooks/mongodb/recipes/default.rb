@@ -2,36 +2,63 @@
 # Cookbook Name:: mongodb
 # Recipe:: default
 #
-# Save credentials on app_master
-if ['app_master','app','solo'].include? @node[:instance_role]
-  Chef::Log.info "creating app mongo.yml code"
-  require_recipe "mongodb::app"
+# Copyright 2011, edelight GmbH
+# Authors:
+#       Markus Korn <markus.korn@edelight.de>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+package "mongodb" do
+  action :install
 end
 
-case node[:kernel][:machine]
-when "i686"
-  # Do nothing, you should never run MongoDB in a i686/i386 environment it will damage your data.
-  # Chef::Log.info "MongoDB cannot be hold data in 32bit systems"
+needs_mongo_gem = (node.recipes.include?("mongodb::replicaset") or node.recipes.include?("mongodb::mongos"))
 
-else
-  
-  if (@node[:instance_role] == 'util' && @node[:name].match(/mongodb/)) || (@node[:instance_role] == "solo" &&  @node[:mongo_utility_instances].length == 0)
-    # Chef::Log.info "installing in util with mongo"
-    
-    require_recipe "mongodb::install"
-    require_recipe "mongodb::configure"
-    require_recipe "mongodb::start"
-    
-    if @node[:mongo_replset]
-      require_recipe "mongodb::replset"
-    end
-  end
-  
-  # Setup an arbiter on the db_master|solo as replica sets need another vote to properly failover.  If you have a Replica set > 3 nodes we don't set this up, you can tune this obviously.
-  if (['db_master','solo'].include?(@node[:instance_role]) &&  @node[:mongo_utility_instances].length == 2)
-    Chef::Log.info "Setting up Mongo in db_master or solo"
-    require_recipe "mongodb::install"
-    require_recipe "mongodb::configure"
-    require_recipe "mongodb::start"
+if needs_mongo_gem
+  # install the mongo ruby gem at compile time to make it globally available
+  gem_package 'mongo' do
+    action :nothing
+  end.run_action(:install)
+  Gem.clear_paths
+end
+
+if node.recipes.include?("mongodb::default") or node.recipes.include?("mongodb")
+  # configure default instance
+  mongodb_instance "mongodb" do
+    mongodb_type "mongod"
+    port         node['mongodb']['port']
+    logpath      node['mongodb']['logpath']
+    dbpath       node['mongodb']['dbpath']
   end
 end
+
+## Firewall configuration ##
+#
+# in order to find all member nodes of a mongodb cluster you have to run queries
+# like:
+#    source_nodes = []
+#
+#    node['mongodb']['client_roles'].each do |client_role|
+#      source_nodes += search(:node, "role:#{client_role} AND chef_environment:#{node.chef_environment}")
+#    end
+#
+#    if !node['mongodb']['cluster_name'].nil?
+#      source_nodes += search(
+#        :node,
+#        "mongodb_cluster_name:#{node['mongodb']['cluster_name']} AND \
+#         (NOT ipaddress:#{node['ipaddress']}) AND \
+#         chef_environment:#{node.chef_environment}"
+#      )
+#    end
+##
