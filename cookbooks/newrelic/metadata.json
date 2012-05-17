@@ -1,0 +1,35 @@
+{
+  "name": "newrelic",
+  "description": "Installs/Configures newrelic",
+  "long_description": "Description\n===========\n\nInstalls and configures [New Relic Server Monitoring](http://newrelic.com/features/server-monitoring).\n\nRequirements\n============\n\nA New Relic license key.\n\nSupports Ubuntu, Debian, CentOS, RedHat, and Fedora.\n\nSee additional [compatibility and requirements](http://newrelic.com/docs/server/new-relic-for-server-monitoring#requirements).\n\nAttributes\n==========\n\n* `node[:newrelic][:license_key]` - New Relic license key\n\nUsage\n=====\n\nInclude default recipe in your run list.\n",
+  "maintainer": "Heavy Water Software Inc.",
+  "maintainer_email": "ops@heavywater.ca",
+  "license": "Apache 2.0",
+  "platforms": {
+    "ubuntu": ">= 0.0.0",
+    "debian": ">= 0.0.0",
+    "centos": ">= 0.0.0",
+    "redhat": ">= 0.0.0",
+    "fedora": ">= 0.0.0"
+  },
+  "dependencies": {
+    "apt": ">= 0.0.0"
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+  },
+  "groupings": {
+  },
+  "recipes": {
+  },
+  "version": "0.2.6"
+}
